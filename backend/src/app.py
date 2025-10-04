@@ -1,7 +1,3 @@
-from fastapi import FastAPI
-
-app = FastAPI()
-
-@app.get('/')
-def main():
-    return {"message":"hello"}
+"""
+웹서버의 엔드포인트를 정의하고 처리하는 파이썬파일
+"""
