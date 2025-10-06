@@ -7,10 +7,13 @@ CREATE TABLE tourist_info (
     latitude DECIMAL(10, 7) NOT NULL COMMENT '위도',
     longitude DECIMAL(10, 7) NOT NULL COMMENT '경도',
     content_type VARCHAR(50) NOT NULL COMMENT 'Tour API의 대분류 (예: 관광지, 음식점, 축제)',
-    category_tag VARCHAR(100) NOT NULL COMMENT 'AI 관심사 매칭용 상세 태그 (예: 음식_한식)',
+    category_tag VARCHAR(100) NOT NULL COMMENT 'AI 관심사 매칭용 상세 태그 (예: 음식)',
     image_url VARCHAR(1024) NULL COMMENT '대표 이미지 URL',
     is_variable BOOLEAN NOT NULL COMMENT '정보 변동성 플래그: TRUE면 Agent의 실시간 검증 대상',
-    last_crawled_date DATE NOT NULL COMMENT 'APScheduler를 통한 최종 업데이트 일자'
+    last_crawled_date DATE NOT NULL COMMENT 'APScheduler를 통한 최종 업데이트 일자',
+    start_date DATE NULL COMMENT '축제/행사 시작일',
+    end_date DATE NULL COMMENT '축제/행사 종료일',
+    operating_hours VARCHAR(255) NULL COMMENT '운영 시간 (예: 09:00-18:00, 24시간, 매일, 주말 휴무)'
 );
 
 -- 2. ai_log: GPT-5 mini 요청 및 검증 로그 테이블

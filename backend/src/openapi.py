@@ -1,10 +1,12 @@
 """
 외부 openapi(tourapi)에서 정보 가져오는 파이썬 파일
 """
+from datetime import datetime
 from pydantic import BaseModel
 from typing import List, Optional
 from sqlalchemy import Column, Integer, String, DECIMAL, Boolean, Date, DateTime, JSON, TEXT
 from sqlalchemy.ext.declarative import declarative_base
+from datetime import date # datetime.date 사용을 위해 date 임포트
 
 class UserRequest(BaseModel):
     """
@@ -12,18 +14,37 @@ class UserRequest(BaseModel):
 
     Attributes:
         region (str): 여행 지역 (예: 서울, 부산, 전주, 제주)
-        start_date (str): 여행 시작일
-        end_date (str): 여행 종료일
+        start_date (date): 여행 시작일
+        end_date (date): 여행 종료일
         age (int): 사용자 나이
         gender (str): 사용자 성별
         interests (List[str]): 사용자 관심사 목록 (예: 음식, 문화, 자연, 쇼핑)
     """
     region: str
-    start_date: str
-    end_date: str
+    start_date: date
+    end_date: date
     age: int
     gender: str
     interests: List[str]
+
+class VerificationDetails(BaseModel):
+    """
+    Agent의 실시간 검증 결과를 나타내는 Pydantic 모델입니다.
+
+    Attributes:
+        operating_status (str): 검색된 운영 여부 및 실제 존재 여부
+        end_or_cancel_status (str): 검색된 종료 또는 취소 여부
+        latest_price_info (str): 검색된 최신 가격 정보
+        schedule_change_and_notes (str): 검색된 일정 변경 여부 및 특이사항
+        reliability_score (int): 정보의 신뢰도 점수 (0-100)
+        reliability_reason (str): 신뢰도 평가 근거
+    """
+    operating_status: str
+    end_or_cancel_status: str
+    latest_price_info: str
+    schedule_change_and_notes: str
+    reliability_score: int
+    reliability_reason: str
 
 class RecommendationItem(BaseModel):
     """
@@ -38,8 +59,7 @@ class RecommendationItem(BaseModel):
         longitude (float): 경도 (tourist_info.longitude)
         image_url (Optional[str]): 추천 장소 이미지 URL (tourist_info.image_url)
         activity (str): AI가 제안하는 해당 장소에서의 활동
-        is_verified (bool): Agent에 의한 실시간 검증 여부
-        verification_details (Optional[str]): 검증 결과에 대한 상세 내용 (예: '정상 운영', '가격 변동: 5000원')
+        verification_details (Optional[VerificationDetails]): 검증 결과에 대한 상세 내용
     """
     name: str
     description: str
@@ -48,17 +68,32 @@ class RecommendationItem(BaseModel):
     longitude: float
     image_url: Optional[str]
     activity: str
-    is_verified: bool = False
-    verification_details: Optional[str] = None
+    verification_details: Optional[VerificationDetails] = None
+    start_date: Optional[date] = None # 축제/행사 시작일
+    end_date: Optional[date] = None # 축제/행사 종료일
+    operating_hours: Optional[str] = None # 운영 시간 (예: "09:00-18:00", "24시간", "매일", "주말 휴무")
+
+class DailyRecommendation(BaseModel):
+    """
+    하루의 여행 일정을 나타내는 Pydantic 모델입니다.
+    """
+    date: date # 해당 일자의 날짜
+    recommendations: List[RecommendationItem] # 해당 일자에 추천되는 장소 목록
 
 class RecommendationResponse(BaseModel):
     """
     최종 API 응답을 나타내는 Pydantic 모델입니다.
 
     Attributes:
-        recommendations (List[RecommendationItem]): AI가 추천하는 장소 목록
+        daily_recommendations (List[DailyRecommendation]): AI가 추천하는 일자별 장소 목록
+        is_verified_success (bool): 모든 변동 항목이 성공적으로 검증되었는지 여부
+        agent_search_log (str): LangChain Agent의 웹 검색 기록 및 결과
+        total_tokens (Optional[int]): AI 추천 생성에 사용된 총 토큰 수
     """
-    recommendations: List[RecommendationItem]
+    daily_recommendations: List[DailyRecommendation]
+    is_verified_success: bool
+    agent_search_log: str
+    total_tokens: Optional[int] = None # AI 추천 생성에 사용된 총 토큰 수
 
 Base = declarative_base()
 
@@ -80,6 +115,9 @@ class TouristInfo(Base):
         image_url (str): 대표 이미지 URL
         is_variable (bool): 정보 변동성 플래그 (True면 Agent 검증 대상)
         last_crawled_date (Date): 최종 업데이트 일자
+        start_date (Date): 축제/행사 시작일 (nullable)
+        end_date (Date): 축제/행사 종료일 (nullable)
+        operating_hours (String): 운영 시간 (nullable)
     """
     __tablename__ = 'tourist_info'
 
@@ -95,6 +133,28 @@ class TouristInfo(Base):
     image_url = Column(String(1024), nullable=True)
     is_variable = Column(Boolean, nullable=False)
     last_crawled_date = Column(Date, nullable=False)
+    start_date = Column(Date, nullable=True)
+    end_date = Column(Date, nullable=True)
+    operating_hours = Column(String(255), nullable=True)
+
+    def to_dict(self):
+        """ORM 객체를 직렬화 가능한 딕셔너리로 변환합니다."""
+        return {
+            "content_id": self.content_id,
+            "name_ko": self.name_ko,
+            "region": self.region,
+            "address": self.address,
+            "latitude": float(self.latitude),
+            "longitude": float(self.longitude),
+            "content_type": self.content_type,
+            "category_tag": self.category_tag,
+            "image_url": self.image_url,
+            "is_variable": self.is_variable,
+            "last_crawled_date": self.last_crawled_date.isoformat() if self.last_crawled_date else None,
+            "start_date": self.start_date.isoformat() if self.start_date else None,
+            "end_date": self.end_date.isoformat() if self.end_date else None,
+            "operating_hours": self.operating_hours
+        }
 
 class AiLog(Base):
     """
