@@ -1,6 +1,6 @@
 """
-개발 및 테스트 단계에서 사용할 더미 관광 데이터를 정의하는 파일입니다.
-실제 Tour API 연동 전까지 임시 데이터 소스로 사용됩니다.
+개발이랑 테스트할때 쓸 더미 관광 데이터 정의하는 파일임.
+진짜 Tour API 연동 전까지 임시 데이터 소스로 쓰는거.
 """
 
 import logging
@@ -8,28 +8,28 @@ from datetime import date
 from decimal import Decimal
 from sqlalchemy.orm import Session
 
-from src.openapi import TouristInfo # ORM 모델 임포트
+from src.openapi import TouristInfo # ORM 모델 가져오는거
 
-# 로거 설정
+# 로거 설정하는거
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 def insert_dummy_tour_data(db: Session):
     """
-    미리 정의된 더미 관광 데이터를 생성하여 데이터베이스 세션에 추가합니다.
+    미리 정해진 더미 관광 데이터를 만들어서 DB 세션에 추가하는거.
     
-    - 이 함수는 데이터를 세션에 추가할 뿐, commit은 하지 않습니다.
-    - 트랜잭션 관리는 이 함수를 호출하는 쪽(예: db.py의 fetch_and_store_tour_data)에서 담당합니다.
+    - 이 함수는 데이터 세션에 추가만 하고, 커밋은 안함.
+    - 트랜잭션 관리는 이 함수 부르는 쪽(예: db.py의 fetch_and_store_tour_data)에서 하는거.
     
     Args:
-        db (Session): SQLAlchemy 데이터베이스 세션 객체.
+        db (Session): SQLAlchemy DB 세션 객체.
     """
     logger.info("[Seed] 더미 관광 데이터 생성 및 DB 세션에 추가를 시작합니다.")
     today = date.today()
     
-    # 아래에 미리 정의된 다양한 지역과 카테고리의 더미 데이터 리스트입니다.
+    # 아래에 미리 정의된 여러 지역이랑 카테고리 더미 데이터 리스트임.
     dummy_data = [
-        # 서울
+        # 서울 데이터
         TouristInfo(
             content_id="SEOUL001", name_ko="남산공원", region="서울", address="서울 용산구 남산공원길 105",
             latitude=Decimal("37.5509"), longitude=Decimal("126.9903"), content_type="관광지",
@@ -61,7 +61,7 @@ def insert_dummy_tour_data(db: Session):
             last_crawled_date=today, operating_hours="매일 09:00-22:00"
         ),
 
-        # 부산
+        # 부산 데이터
         TouristInfo(
             content_id="BUSAN001", name_ko="해운대 해수욕장", region="부산", address="부산 해운대구 우동",
             latitude=Decimal("35.1587"), longitude=Decimal("129.1609"), content_type="관광지",
@@ -87,7 +87,7 @@ def insert_dummy_tour_data(db: Session):
             last_crawled_date=today, start_date=date(2025, 10, 24), end_date=date(2025, 10, 26), operating_hours="정보 없음"
         ),
 
-        # 제주
+        # 제주 데이터
         TouristInfo(
             content_id="JEJU001", name_ko="한라산 국립공원", region="제주", address="제주 제주시 1100로 2070-61",
             latitude=Decimal("33.3625"), longitude=Decimal("126.5292"), content_type="관광지",
@@ -101,7 +101,7 @@ def insert_dummy_tour_data(db: Session):
             last_crawled_date=today, operating_hours="매일 18:00-24:00"
         ),
 
-        # 전주
+        # 전주 데이터
         TouristInfo(
             content_id="JEONJU001", name_ko="전주 한옥마을", region="전주", address="전북 전주시 완산구 기린대로 99",
             latitude=Decimal("35.8143"), longitude=Decimal("127.1533"), content_type="관광지",
