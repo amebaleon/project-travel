@@ -1,5 +1,5 @@
 """
-외부 openapi(tourapi)에서 정보 가져오는 파이썬 파일
+외부 openapi(tourapi)에서 정보 가져오는 파이썬 파일임
 """
 from datetime import datetime
 from pydantic import BaseModel
@@ -10,7 +10,7 @@ from datetime import date # datetime.date 사용을 위해 date 임포트
 
 class UserRequest(BaseModel):
     """
-    사용자 요청을 나타내는 Pydantic 모델입니다. PRD에 명시된 5가지 핵심 데이터를 기반으로 합니다.
+    사용자 요청 나타내는 Pydantic 모델임. PRD에 잇는 5가지 핵심 데이터 기반으로 햇음.
 
     Attributes:
         region (str): 여행 지역 (예: 서울, 부산, 전주, 제주)
@@ -29,7 +29,7 @@ class UserRequest(BaseModel):
 
 class VerificationDetails(BaseModel):
     """
-    Agent의 실시간 검증 결과를 나타내는 Pydantic 모델입니다.
+    Agent 실시간 검증 결과 나타내는 Pydantic 모델임.
 
     Attributes:
         operating_status (str): 검색된 운영 여부 및 실제 존재 여부
@@ -48,8 +48,8 @@ class VerificationDetails(BaseModel):
 
 class RecommendationItem(BaseModel):
     """
-    AI 추천 단일 항목을 나타내는 Pydantic 모델입니다.
-    tourist_info 테이블의 정보를 기반으로 하며, AI가 생성한 정보와 검증 결과가 추가됩니다.
+    AI 추천 단일 항목 나타내는 Pydantic 모델임.
+    tourist_info 테이블 정보 기반이고, AI가 만든 정보랑 검증 결과 추가되는거.
 
     Attributes:
         name (str): 추천 장소 이름 (tourist_info.name_ko)
@@ -75,14 +75,14 @@ class RecommendationItem(BaseModel):
 
 class DailyRecommendation(BaseModel):
     """
-    하루의 여행 일정을 나타내는 Pydantic 모델입니다.
+    하루 여행 일정 나타내는 Pydantic 모델임.
     """
     date: date # 해당 일자의 날짜
     recommendations: List[RecommendationItem] # 해당 일자에 추천되는 장소 목록
 
 class RecommendationResponse(BaseModel):
     """
-    최종 API 응답을 나타내는 Pydantic 모델입니다.
+    최종 API 응답 나타내는 Pydantic 모델임.
 
     Attributes:
         daily_recommendations (List[DailyRecommendation]): AI가 추천하는 일자별 장소 목록
@@ -99,8 +99,8 @@ Base = declarative_base()
 
 class TouristInfo(Base):
     """
-    tourist_info 테이블과 매핑되는 SQLAlchemy ORM 모델입니다.
-    Tour API로부터 수집된 관광 정보를 저장합니다.
+    tourist_info 테이블이랑 매핑되는 SQLAlchemy ORM 모델임.
+    Tour API에서 수집된 관광 정보 저장하는거.
 
     Attributes:
         id (int): 고유 식별 번호 (DB 자체 관리용)
@@ -138,7 +138,7 @@ class TouristInfo(Base):
     operating_hours = Column(String(255), nullable=True)
 
     def to_dict(self):
-        """ORM 객체를 직렬화 가능한 딕셔너리로 변환합니다."""
+        """ORM 객체를 딕셔너리로 바꾸는거."""
         return {
             "content_id": self.content_id,
             "name_ko": self.name_ko,
@@ -158,8 +158,8 @@ class TouristInfo(Base):
 
 class AiLog(Base):
     """
-    ai_log 테이블과 매핑되는 SQLAlchemy ORM 모델입니다.
-    AI의 추천 생성 및 검증 과정을 로깅합니다.
+    ai_log 테이블이랑 매핑되는 SQLAlchemy ORM 모델임.
+    AI 추천 만들고 검증하는 과정 기록하는거.
 
     Attributes:
         log_id (int): 고유 로그 번호

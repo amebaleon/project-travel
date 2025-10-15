@@ -1,6 +1,6 @@
 """
 OpenAI API 호출, LangChain Agent 생성 및 실행 등
-LLM(거대 언어 모델)과 관련된 모든 핵심 로직을 담당하는 파일입니다.
+LLM(거대 언어 모델) 관련 핵심 로직 담당하는 파일임.
 """
 
 import os
@@ -25,7 +25,7 @@ from src.openapi import RecommendationResponse, RecommendationItem, Verification
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
-# .env 파일에서 환경 변수 로드
+# .env 파일에서 환경 변수 불러오는거
 dotenv_path = os.path.join(os.path.dirname(__file__), '..', '.env')
 load_dotenv(dotenv_path=dotenv_path)
 
@@ -33,7 +33,7 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 if not OPENAI_API_KEY:
     raise ValueError("OPENAI_API_KEY 환경 변수가 .env 파일에 설정되지 않았습니다.")
 
-# --- 클라이언트 및 Agent 초기화 ---
+# --- 클라이언트랑 Agent 초기화 ---
 
 # OpenAI 클라이언트 초기화
 client = OpenAI(api_key=OPENAI_API_KEY)
@@ -135,7 +135,7 @@ VERIFICATION_PROMPT_TEMPLATE = """
 # --- 헬퍼 함수 ---
 
 def _create_error_verification_details(reason: str, notes: str) -> VerificationDetails:
-    """Agent 검증 과정에서 오류 발생 시 사용할 VerificationDetails 객체를 생성합니다."""
+    """Agent 검증하다 에러나면 쓸 VerificationDetails 객체 만드는거."""
     return VerificationDetails(
         operating_status="검증 실패",
         end_or_cancel_status="정보 없음",
@@ -149,7 +149,7 @@ def _create_error_verification_details(reason: str, notes: str) -> VerificationD
 
 async def generate_initial_recommendations(user_request: dict, tourist_info_json: str) -> Tuple[str, Optional[int]]:
     """
-    GPT-5-mini 모델을 호출하여 사용자의 요청과 데이터베이스 정보를 바탕으로 초기 추천 목록을 생성합니다.
+    GPT-5-mini 모델 불러서 사용자 요청이랑 DB 정보로 초기 추천 목록 만드는거.
     """
     start_date_obj = user_request["start_date"]
     end_date_obj = user_request["end_date"]
@@ -181,9 +181,9 @@ async def generate_initial_recommendations(user_request: dict, tourist_info_json
     logger.info(f"[LLM] GPT-5-mini 호출 완료. 사용된 토큰: {total_tokens}")
     return response.choices[0].message.content, total_tokens
 
-async def verify_recommendation_with_agent(item_name: str, content_id: str, start_date: Optional[str], end_date: Optional[str], operating_hours: Optional[str], timeout: int = 30) -> str:
+async def verify_recommendation_with_agent(item_name: str, content_id: str, start_date: Optional[str], end_date: Optional[str], operating_hours: Optional[str], timeout: int = 60) -> str:
     """
-    정보 변동성이 높은 항목(`is_variable=True`)에 대해 LangChain Agent를 호출하여 실시간 정보를 검증합니다.
+    정보 변동성 높은 항목(`is_variable=True`)은 LangChain Agent 불러서 실시간 정보 검증하는거.
     """
     prompt = VERIFICATION_PROMPT_TEMPLATE.format(
         item_name=item_name,
@@ -210,16 +210,12 @@ async def verify_recommendation_with_agent(item_name: str, content_id: str, star
 
 async def get_ai_recommendations(user_request: dict, tourist_info_data: list) -> RecommendationResponse:
     """
-    AI 추천 생성 및 검증 과정을 총괄하는 메인 함수입니다.
-    
-    1. `generate_initial_recommendations`를 호출하여 LLM으로부터 초기 추천 목록을 받습니다.
-    2. 초기 추천 목록의 각 항목을 순회하며, `is_variable` 플래그를 확인합니다.
-    3. `is_variable=True`인 경우, `verify_recommendation_with_agent`를 호출하여 실시간 정보를 검증합니다.
-    4. 검증 결과를 포함하여 최종 `RecommendationResponse` 객체를 생성하여 반환합니다.
+    AI 추천 생성 및 검증을 수행하는 메인 함수.
+    - 최적화: 정보 변동성이 높은 항목들의 실시간 정보 검증을 순차적이 아닌 병렬로 수행하여 응답 시간을 단축.
     """
     tourist_info_json = json.dumps(tourist_info_data, ensure_ascii=False, indent=2)
 
-    # 1. LLM으로부터 초기 추천 목록 생성
+    # 1. LLM을 통해 초기 추천 목록 생성
     try:
         initial_recommendations_str, total_tokens_used = await generate_initial_recommendations(user_request, tourist_info_json)
         initial_recommendations_data = json.loads(initial_recommendations_str)
@@ -230,11 +226,11 @@ async def get_ai_recommendations(user_request: dict, tourist_info_data: list) ->
     final_daily_recommendations: List[DailyRecommendation] = []
     is_verified_success = True
     agent_search_logs = []
-
-    # content_id를 키로 하는 딕셔너리를 생성하여 데이터베이스 정보를 빠르게 조회
     tourist_info_map = {item['content_id']: item for item in tourist_info_data}
 
-    # 2. 각 추천 항목에 대한 검증 및 최종 결과 생성
+    # 2. 추천 항목 파싱 및 검증 대기 목록 생성
+    items_to_verify = [] # (recommendation_item, tourist_info_entry) 튜플을 저장할 리스트
+
     for daily_plan_data in initial_recommendations_data.get("daily_recommendations", []):
         current_date_str = daily_plan_data.get("date")
         if not current_date_str:
@@ -242,7 +238,6 @@ async def get_ai_recommendations(user_request: dict, tourist_info_data: list) ->
             is_verified_success = False
             agent_search_logs.append("LLM 응답에 날짜 필드 누락")
             continue
-
         try:
             current_date = datetime.strptime(current_date_str, "%Y-%m-%d").date()
         except ValueError:
@@ -262,7 +257,6 @@ async def get_ai_recommendations(user_request: dict, tourist_info_data: list) ->
                 agent_search_logs.append(f"LLM이 유효하지 않은 content_id 추천: {content_id}")
                 continue
 
-            # LLM의 추천과 DB 데이터를 결합하여 최종 추천 아이템 생성
             recommendation_item = RecommendationItem(
                 name=item_data.get("name", tourist_info_entry["name_ko"]),
                 description=item_data.get("description", "AI가 생성한 설명이 없습니다."),
@@ -276,48 +270,67 @@ async def get_ai_recommendations(user_request: dict, tourist_info_data: list) ->
                 operating_hours=tourist_info_entry.get('operating_hours')
             )
 
-            # 정보 변동성이 높은 항목인 경우, Agent를 통해 실시간 검증 수행
             if tourist_info_entry.get('is_variable', False):
-                verification_result_str = await verify_recommendation_with_agent(
-                    recommendation_item.name, content_id,
-                    tourist_info_entry.get('start_date'), tourist_info_entry.get('end_date'), tourist_info_entry.get('operating_hours')
-                )
-                try:
-                    verification_json = json.loads(verification_result_str)
-                    if "error" in verification_json:
-                        is_verified_success = False
-                        agent_search_logs.append(f"{recommendation_item.name}: 검증 실패 - {verification_json['error']}")
-                        recommendation_item.verification_details = _create_error_verification_details("Agent 검증 중 오류 발생", verification_json['error'])
-                    else:
-                        verification_data = verification_json.get("verification_results", {{}})
-                        recommendation_item.verification_details = VerificationDetails(
-                            operating_status=verification_data.get("operating_status", "정보 없음"),
-                            end_or_cancel_status=verification_data.get("end_or_cancel_status", "정보 없음"),
-                            latest_price_info=verification_data.get("latest_price_info", "정보 없음"),
-                            schedule_change_and_notes=verification_data.get("schedule_change_and_notes", "정보 없음"),
-                            reliability_score=verification_json.get("reliability_score", 0),
-                            reliability_reason=verification_json.get("reliability_reason", "정보 없음")
-                        )
-                        agent_search_logs.append(f"{recommendation_item.name}: 검증 성공")
-                except json.JSONDecodeError:
-                    is_verified_success = False
-                    agent_search_logs.append(f"{recommendation_item.name}: 검증 실패 - Agent가 반환한 JSON 파싱 오류")
-                    recommendation_item.verification_details = _create_error_verification_details("Agent 응답 JSON 파싱 오류", verification_result_str)
-                except Exception as e:
-                    is_verified_success = False
-                    agent_search_logs.append(f"{recommendation_item.name}: 검증 실패 - 예상치 못한 오류: {e}")
-                    recommendation_item.verification_details = _create_error_verification_details("Agent 검증 결과 처리 중 오류", str(e))
+                items_to_verify.append((recommendation_item, tourist_info_entry))
             else:
-                # 변동성이 낮은 항목은 검증 없이 기본값을 설정
                 recommendation_item.verification_details = VerificationDetails(
                     operating_status="변동성 낮음", end_or_cancel_status="해당 없음", latest_price_info="해당 없음",
                     schedule_change_and_notes="실시간 정보 변동성이 낮은 항목입니다.",
                     reliability_score=100, reliability_reason="사전 수집된 데이터 기반"
                 )
-            
             daily_recommendation_items.append(recommendation_item)
         
         final_daily_recommendations.append(DailyRecommendation(date=current_date, recommendations=daily_recommendation_items))
+
+    # 3. 병렬로 정보 검증 실행
+    if items_to_verify:
+        logger.info(f"[Agent] 총 {len(items_to_verify)}개의 항목에 대한 병렬 정보 검증을 시작합니다.")
+        verification_tasks = [
+            verify_recommendation_with_agent(
+                item.name, item_data['content_id'],
+                item_data.get('start_date'), item_data.get('end_date'), item_data.get('operating_hours')
+            ) for item, item_data in items_to_verify
+        ]
+        verification_results = await asyncio.gather(*verification_tasks, return_exceptions=True)
+        logger.info("[Agent] 모든 병렬 정보 검증이 완료되었습니다.")
+
+        # 4. 검증 결과 처리
+        for i, result in enumerate(verification_results):
+            item_to_update, _ = items_to_verify[i]
+
+            if isinstance(result, Exception):
+                is_verified_success = False
+                error_message = f"Agent 검증 중 예외 발생: {result}"
+                agent_search_logs.append(f"{item_to_update.name}: 검증 실패 - {error_message}")
+                item_to_update.verification_details = _create_error_verification_details("Agent 검증 중 예외 발생", str(result))
+                continue
+
+            verification_result_str = result
+            try:
+                verification_json = json.loads(verification_result_str)
+                if "error" in verification_json:
+                    is_verified_success = False
+                    agent_search_logs.append(f"{item_to_update.name}: 검증 실패 - {verification_json['error']}")
+                    item_to_update.verification_details = _create_error_verification_details("Agent 검증 중 오류 발생", verification_json['error'])
+                else:
+                    verification_data = verification_json.get("verification_results", {})
+                    item_to_update.verification_details = VerificationDetails(
+                        operating_status=verification_data.get("operating_status", "정보 없음"),
+                        end_or_cancel_status=verification_data.get("end_or_cancel_status", "정보 없음"),
+                        latest_price_info=verification_data.get("latest_price_info", "정보 없음"),
+                        schedule_change_and_notes=verification_data.get("schedule_change_and_notes", "정보 없음"),
+                        reliability_score=verification_json.get("reliability_score", 0),
+                        reliability_reason=verification_json.get("reliability_reason", "정보 없음")
+                    )
+                    agent_search_logs.append(f"{item_to_update.name}: 검증 성공")
+            except json.JSONDecodeError:
+                is_verified_success = False
+                agent_search_logs.append(f"{item_to_update.name}: 검증 실패 - Agent가 반환한 JSON 파싱 오류")
+                item_to_update.verification_details = _create_error_verification_details("Agent 응답 JSON 파싱 오류", verification_result_str)
+            except Exception as e:
+                is_verified_success = False
+                agent_search_logs.append(f"{item_to_update.name}: 검증 실패 - 예상치 못한 오류: {e}")
+                item_to_update.verification_details = _create_error_verification_details("Agent 검증 결과 처리 중 오류", str(e))
 
     return RecommendationResponse(
         daily_recommendations=final_daily_recommendations,
