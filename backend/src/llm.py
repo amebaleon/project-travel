@@ -181,7 +181,7 @@ async def generate_initial_recommendations(user_request: dict, tourist_info_json
     logger.info(f"[LLM] GPT-5-mini 호출 완료. 사용된 토큰: {total_tokens}")
     return response.choices[0].message.content, total_tokens
 
-async def verify_recommendation_with_agent(item_name: str, content_id: str, start_date: Optional[str], end_date: Optional[str], operating_hours: Optional[str], timeout: int = 60) -> str:
+async def verify_recommendation_with_agent(item_name: str, content_id: str, start_date: Optional[str], end_date: Optional[str], operating_hours: Optional[str], timeout: int = 120) -> str:
     """
     정보 변동성 높은 항목(`is_variable=True`)은 LangChain Agent 불러서 실시간 정보 검증하는거.
     """
