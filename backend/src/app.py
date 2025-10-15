@@ -5,7 +5,8 @@ FastAPI 메인 파일임. API 엔드포인트, 앱 시작 이벤트, 의존성 �
 import logging
 from datetime import datetime
 
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, BackgroundTasks
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 from src.openapi import UserRequest, RecommendationResponse
@@ -21,6 +22,15 @@ app = FastAPI(
     title="AI Travel Recommender API",
     description="사용자 맞춤형 여행 일정을 추천하는 AI 기반 API",
     version="1.0.0"
+)
+
+# CORS 미들웨어 추가
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # 프론트엔드 서버 주소
+    allow_credentials=True,
+    allow_methods=["*"],  # 모든 HTTP 메소드 허용
+    allow_headers=["*"],  # 모든 HTTP 헤더 허용
 )
 
 
