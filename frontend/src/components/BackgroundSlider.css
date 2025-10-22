@@ -5,7 +5,6 @@
   z-index: -1;
   overflow: hidden;
   pointer-events: none;
-  /* 기본 배경 색을 어둡게 해서 이미지 로드 전/전환 중 흰색 깜빡임 방지 */
   background-color: #111;
 }
 

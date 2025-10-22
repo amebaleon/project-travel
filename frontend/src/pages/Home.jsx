@@ -10,17 +10,7 @@ export default function Home() {
   return (
     <div>
       <Navbar />
-      <div style={{ position: "relative", zIndex: 3, padding: 20 }}>
-        {showInput ? (
-          <TravelInput
-            query={query}
-            setQuery={setQuery}
-            onClose={() => setShowInput(false)}
-          />
-        ) : (
-          <BackgroundSlider onOpenInput={() => setShowInput(true)} />
-        )}
-      </div>
+      <BackgroundSlider />
     </div>
   );
 }
