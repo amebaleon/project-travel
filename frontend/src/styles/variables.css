@@ -1,0 +1,27 @@
+:root {
+  /* Colors */
+  --color-text-primary: #000;
+  --color-text-secondary: rgba(0, 0, 0, 0.8);
+  --color-navbar-bg: rgba(255, 255, 255, 0.25);
+  --color-navbar-border: rgba(224, 224, 224, 0.5);
+  --color-bg-slider: #111;
+
+  /* Layout & Sizing */
+  --navbar-height: 87px;
+  --navbar-padding-y: 18px;
+  --navbar-padding-x: 80px;
+  --navbar-menu-gap: 40px;
+
+  /* Typography */
+  --font-size-logo: 32px;
+  --font-size-menu: 15px;
+
+  /* Effects */
+  --navbar-blur: 15px;
+  --shadow-navbar: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  /* Z-Index */
+  --z-index-background: -1;
+  --z-index-bg-controls: 2;
+  --z-index-navbar: 1000;
+}

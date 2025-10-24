@@ -2,10 +2,10 @@
 .bg-slider-root {
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: var(--z-index-background);
   overflow: hidden;
   pointer-events: none;
-  background-color: #111;
+  background-color: var(--color-bg-slider);
 }
 
 .bg-slider-layer {
@@ -31,7 +31,7 @@
 /* 오버레이 컨트롤 */
 .bg-slider-controls {
   position: relative;
-  z-index: 2;
+  z-index: var(--z-index-bg-controls);
   width: 100%;
   display: flex;
   justify-content: center;

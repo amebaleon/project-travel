@@ -2,50 +2,46 @@
   position: fixed;
   top: 0;
   width: 100%;
-  height: 87px;
+  height: var(--navbar-height);
 
   display: flex;
   justify-content: space-between;
   align-items: center;
 
-  padding: 18px 80px;
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
+  padding: var(--navbar-padding-y) var(--navbar-padding-x);
+  background: var(--color-navbar-bg);
+  backdrop-filter: blur(var(--navbar-blur));
+  -webkit-backdrop-filter: blur(var(--navbar-blur));
 
-  border-bottom: 1px solid rgba(224, 224, 224, 0.5);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-}
-
-:root {
-  --navbar-height: 87px;
+  border-bottom: 1px solid var(--color-navbar-border);
+  box-shadow: var(--shadow-navbar);
+  z-index: var(--z-index-navbar);
 }
 
 .navbar-logo {
   display: flex;
   align-items: center;
   height: 40px;
-  font-size: 32px;
+  font-size: var(--font-size-logo);
   font-weight: 700;
-  color: #000; /* 검정으로 변경 */
+  color: var(--color-text-primary);
 }
 
 .navbar-menu {
   list-style: none;
   display: flex;
-  gap: 40px;
+  gap: var(--navbar-menu-gap);
   margin: 0;
 }
 
 .navbar-menu li a {
   text-decoration: none;
-  color: rgba(0, 0, 0, 0.8);
+  color: var(--color-text-secondary);
   font-weight: 500;
-  font-size: 15px;
+  font-size: var(--font-size-menu);
   transition: color 0.2s ease;
 }
 
 .navbar-menu li a:hover {
-  color: #000;
+  color: var(--color-text-primary);
 }
