@@ -18,6 +18,7 @@ from langchain.agents import AgentExecutor, create_openai_tools_agent
 from langchain import hub
 
 from src.openapi import RecommendationResponse, RecommendationItem, VerificationDetails, DailyRecommendation
+from src.kakao_maps import get_coords_for_location
 
 # --- 초기 설정 ---
 
@@ -33,6 +34,10 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 if not OPENAI_API_KEY:
     raise ValueError("OPENAI_API_KEY 환경 변수가 .env 파일에 설정되지 않았습니다.")
 
+KAKAO_API_KEY = os.getenv("KAKAO_API_KEY")
+if not KAKAO_API_KEY:
+    raise ValueError("KAKAO_API_KEY 환경 변수가 .env 파일에 설정되지 않았습니다.")
+
 # --- 클라이언트랑 Agent 초기화 ---
 
 # OpenAI 클라이언트 초기화
@@ -40,7 +45,7 @@ client = OpenAI(api_key=OPENAI_API_KEY)
 
 # LangChain Agent 설정
 search_tool = DuckDuckGoSearchRun()
-llm_agent = ChatOpenAI(model_name="gpt-5-mini", temperature=0, stop_sequences=[], streaming=False)
+llm_agent = ChatOpenAI(model_name="gpt-4-turbo", temperature=0, stop_sequences=[], streaming=False)
 tools = [search_tool]
 prompt_hub_template = hub.pull("hwchase17/openai-tools-agent")
 agent = create_openai_tools_agent(llm_agent, tools, prompt_hub_template)
@@ -256,14 +261,22 @@ async def get_ai_recommendations(user_request: dict, tourist_info_data: list) ->
                 is_verified_success = False
                 agent_search_logs.append(f"LLM이 유효하지 않은 content_id 추천: {content_id}")
                 continue
+            
+            latitude = tourist_info_entry.get('latitude')
+            longitude = tourist_info_entry.get('longitude')
+
+            if not latitude or not longitude:
+                lat, lon = get_coords_for_location(KAKAO_API_KEY, tourist_info_entry["name_ko"])
+                latitude = lat
+                longitude = lon
 
             recommendation_item = RecommendationItem(
                 name=item_data.get("name", tourist_info_entry["name_ko"]),
                 description=item_data.get("description", "AI가 생성한 설명이 없습니다."),
                 activity=item_data.get("activity", "AI가 제안한 활동이 없습니다."),
                 address=tourist_info_entry['address'],
-                latitude=tourist_info_entry['latitude'],
-                longitude=tourist_info_entry['longitude'],
+                latitude=latitude,
+                longitude=longitude,
                 image_url=tourist_info_entry.get('image_url'),
                 start_date=tourist_info_entry.get('start_date'),
                 end_date=tourist_info_entry.get('end_date'),
@@ -320,7 +333,7 @@ async def get_ai_recommendations(user_request: dict, tourist_info_data: list) ->
                         latest_price_info=verification_data.get("latest_price_info", "정보 없음"),
                         schedule_change_and_notes=verification_data.get("schedule_change_and_notes", "정보 없음"),
                         reliability_score=verification_json.get("reliability_score", 0),
-                        reliability_reason=verification_json.get("reliability_reason", "정보 없음")
+                        reliability_reason=.get("reliability_reason", "정보 없음")
                     )
                     agent_search_logs.append(f"{item_to_update.name}: 검증 성공")
             except json.JSONDecodeError:

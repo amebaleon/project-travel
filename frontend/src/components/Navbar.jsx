@@ -13,15 +13,6 @@ export default function Navbar() {
           <a href="#">Home</a>
         </li>
         <li>
-          <a href="#">Updates</a>
-        </li>
-        <li>
-          <a href="#">Services</a>
-        </li>
-        <li>
-          <a href="#">Features</a>
-        </li>
-        <li>
           <a href="#">About Us</a>
         </li>
       </ul>

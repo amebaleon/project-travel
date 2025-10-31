@@ -1,31 +1,17 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI Travel Recommender</title>
-    <!-- Google Fonts: Inter -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap"
-      rel="stylesheet"
-    />
-    <script
-      type="text/javascript"
-      src="//dapi.kakao.com/v2/maps/sdk.js?appkey=%VITE_KAKAO_MAP_API_KEY%"
-    ></script>
+    <title>AI Travel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=ae82bac345da6058061394a536ec98b2&libraries=services,clusterer,drawing"></script>
   </head>
   <body>
-    <style>
-      /* 전역 폰트 설정: Inter */
-      body {
-        font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
-        font-size: 16px; /* 기본 폰트 크기 조정 */
-      }
-    </style>
-    <!-- React 앱 마운트 포인트 -->
     <div id="root"></div>
-
-    <!-- Vite 엔트리 (빌드/개발에서 번들 스크립트를 주입) -->
     <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>

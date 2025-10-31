@@ -1,3 +1,4 @@
+
 :root {
   /* Colors */
   --color-text-primary: #000;
@@ -5,6 +6,10 @@
   --color-navbar-bg: rgba(255, 255, 255, 0.25);
   --color-navbar-border: rgba(224, 224, 224, 0.5);
   --color-bg-slider: #111;
+  --color-primary-blue: #5fa4ef;
+  --color-secondary-gray: #6c757d;
+  --color-dark-gray: #343a40;
+  --color-white: #fff;
 
   /* Layout & Sizing */
   --navbar-height: 87px;
@@ -25,3 +30,4 @@
   --z-index-bg-controls: 2;
   --z-index-navbar: 1000;
 }
+
