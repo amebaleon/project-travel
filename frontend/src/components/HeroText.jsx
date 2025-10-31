@@ -10,12 +10,24 @@ export default function HeroText({
   return (
     <div
       style={{
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        background: "rgba(255, 255, 255, 0.2)",
+        backdropFilter: "blur(10px) saturate(1.2)",
+        borderRadius: "16px",
+        border: "2px solid rgba(255, 255, 255, 0.5)",
+        boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
+        padding: "32px",
+        paddingTop: "60px",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        width: "100%",
-        maxWidth: 559,
-        transform: "translateY(-12%)",
+        width: "500px",
+        height: "350px",
+        maxWidth: "90vw",
+        maxHeight: "90vw",
       }}
     >
       <div

@@ -1,14 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./BackgroundSlider.css";
-import HeroText from "./HeroText";
 
-export default function BackgroundSlider({ onOpenInput }) {
+export default function BackgroundSlider() {
   const images = ["/서울.png", "/부산.jpg", "/전주.png", "/제주.jpg"];
   const captions = ["서울", "부산", "전주", "제주"];
-  const textColors = ["#2b2b2b", "#151B54", "#A0522D", "#0e5a3c"];
-  const [textColor, setTextColor] = useState(textColors[0]);
-  const textColorRef = useRef(textColors[0]);
-
   const [current, setCurrent] = useState(0);
   const currentRef = useRef(0);
   const [front, setFront] = useState(0);
@@ -43,10 +38,6 @@ export default function BackgroundSlider({ onOpenInput }) {
 
     const backEl = layerRefs.current[back];
     const doTransition = () => {
-      const targetColor = textColors[next] || "#151B54";
-      setTextColor(targetColor);
-      textColorRef.current = targetColor;
-
       const frontEl = layerRefs.current[frontRef.current];
       const backEl2 = layerRefs.current[back];
       if (!frontEl || !backEl2) {
@@ -97,97 +88,38 @@ export default function BackgroundSlider({ onOpenInput }) {
         backEl.addEventListener("load", onLoad);
       }
     } else {
-      const targetColor = textColors[next] || "#151B54";
-      setTextColor(targetColor);
-      textColorRef.current = targetColor;
       doTransition();
     }
   };
 
-  // 수동 버튼이 눌리면 자동 타이머 리셋
-  const handleNext = () => {
-    clearInterval(timerRef.current);
-    goNext();
-    timerRef.current = setInterval(() => goNext(), GAP_MS);
-  };
-
   return (
-    <>
-      <div
-        style={{
-          position: "fixed",
-          inset: 0,
-          zIndex: -1,
-          overflow: "hidden",
-          pointerEvents: "none",
-        }}
-        aria-hidden
-      >
-        <img
-          id="bg-layer-0"
-          ref={(el) => (layerRefs.current[0] = el)}
-          className={`bg-slider-layer ${front === 0 ? "front" : ""}`}
-          src={layers[0] || images[0]}
-          alt={captions[current]}
-          style={{ transitionDuration: `${TRANS_MS}ms` }}
-        />
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: -1,
+        overflow: "hidden",
+        pointerEvents: "none",
+      }}
+      aria-hidden
+    >
+      <img
+        id="bg-layer-0"
+        ref={(el) => (layerRefs.current[0] = el)}
+        className={`bg-slider-layer ${front === 0 ? "front" : ""}`}
+        src={layers[0] || images[0]}
+        alt={captions[current]}
+        style={{ transitionDuration: `${TRANS_MS}ms` }}
+      />
 
-        <img
-          id="bg-layer-1"
-          ref={(el) => (layerRefs.current[1] = el)}
-          className={`bg-slider-layer ${front === 1 ? "front" : ""}`}
-          src={layers[1] || images[0]}
-          alt={captions[current]}
-          style={{ transitionDuration: `${TRANS_MS}ms` }}
-        />
-      </div>
-
-      <div
-        style={{
-          position: "relative",
-          zIndex: 2,
-          width: "100%",
-          display: "flex",
-          justifyContent: "center",
-        }}
-      >
-        <div style={{ marginTop: 12, background: "transparent", padding: 8 }}>
-          <button
-            onClick={() => onOpenInput && onOpenInput()}
-            style={{ marginRight: 8 }}
-          >
-            입력 화면으로 이동
-          </button>
-          <button onClick={handleNext}>다음</button>
-        </div>
-      </div>
-
-      <div
-        aria-hidden={false}
-        style={{
-          position: "fixed",
-          left: 0,
-          top: "var(--navbar-height)",
-          width: "100vw",
-          height: "calc(100vh - var(--navbar-height))",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          pointerEvents: "auto",
-          zIndex: 5,
-          padding: "20px",
-          boxSizing: "border-box",
-        }}
-      >
-        <HeroText
-          title={"Your Korea, Designed by AI"}
-          subtitle={"Make your trip easier"}
-          color={textColor}
-          onGetStart={() => {
-            onOpenInput && onOpenInput();
-          }}
-        />
-      </div>
-    </>
+      <img
+        id="bg-layer-1"
+        ref={(el) => (layerRefs.current[1] = el)}
+        className={`bg-slider-layer ${front === 1 ? "front" : ""}`}
+        src={layers[1] || images[0]}
+        alt={captions[current]}
+        style={{ transitionDuration: `${TRANS_MS}ms` }}
+      />
+    </div>
   );
 }
