@@ -81,10 +81,11 @@ INITIAL_RECOMMENDATION_PROMPT_TEMPLATE = """
 1. 사용자 정보를 바탕으로 각 날짜별로 2~3개의 여행지를 추천해주세요.
 2. 각 여행지에 대한 간략한 설명과 추천 이유를 포함해주세요.
 3. 각 여행지에서의 활동을 제안해주세요.
-4. 각 여행지의 주소를 포함해주세요.
-5. 축제/행사 정보가 있다면, 시작일과 종료일을 포함해주세요.
-6. 운영 시간이 있다면, 운영 시간을 포함해주세요.
-7. 추천 결과는 다음 JSON 형식으로 반환해주세요:
+4. 각 여행지의 정확하고 지오코딩 가능한 주소를 포함해주세요. (예: '서울특별시 강남구 테헤란로 123'). 만약 정확한 주소를 모른다면, DuckDuckGoSearchRun 도구를 사용하여 찾아주세요.
+5. 각 여행지의 대표 이미지 URL을 포함해주세요. (예: 'https://example.com/image.jpg')
+6. 축제/행사 정보가 있다면, 시작일과 종료일을 포함해주세요.
+7. 운영 시간이 있다면, 운영 시간을 포함해주세요.
+8. 추천 결과는 다음 JSON 형식으로 반환해주세요:
 ```json
 {{
     "daily_recommendations": [
@@ -96,6 +97,7 @@ INITIAL_RECOMMENDATION_PROMPT_TEMPLATE = """
                     "description": "추천 이유 및 간략 설명",
                     "activity": "AI가 제안하는 해당 장소에서의 활동",
                     "address": "장소 주소",
+                    "image_url": "대표 이미지 URL (예: https://example.com/image.jpg)",
                     "start_date": "YYYY-MM-DD (축제/행사 시)",
                     "end_date": "YYYY-MM-DD (축제/행사 시)",
                     "operating_hours": "운영 시간 (예: 09:00-18:00)"
