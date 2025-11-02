@@ -9,9 +9,9 @@ from fastapi import FastAPI, Depends, HTTPException, status, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
-from src.openapi import UserRequest, RecommendationResponse
+from src.models import UserRequest, RecommendationResponse
 from src.llm import get_ai_recommendations
-from src.db import get_db, get_tourist_info_from_db, log_ai_interaction, schedule_tour_data_update, fetch_and_store_tour_data
+from src.db import get_db, log_ai_interaction
 
 # 로거 설정하는거
 logger = logging.getLogger(__name__)
@@ -34,23 +34,23 @@ app.add_middleware(
 )
 
 
-@app.on_event("startup")
-async def startup_event():
-    """
-    앱 시작될 때 실행되는 이벤트 핸들러임.
-    - DB 스키마는 db.py에서 초기화됨.
-    - 매주 데이터 업데이트 스케줄링 햇음.
-    - 앱 시작할 때 데이터 바로 채워넣음.
-    """
-    logger.info("[App] 애플리케이션 시작 이벤트가 트리거되었습니다.")
+# @app.on_event("startup")
+# async def startup_event():
+#     """
+#     앱 시작될 때 실행되는 이벤트 핸들러임.
+#     - DB 스키마는 db.py에서 초기화됨.
+#     - 매주 데이터 업데이트 스케줄링 햇음.
+#     - 앱 시작할 때 데이터 바로 채워넣음.
+#     """
+#     logger.info("[App] 애플리케이션 시작 이벤트가 트리거되었습니다.")
     
-    # 1. 매주 데이터 업데이트 스케줄링 하는거
-    schedule_tour_data_update()
+#     # 1. 매주 데이터 업데이트 스케줄링 하는거
+#     # schedule_tour_data_update()
     
-    # 2. 시작할때 바로 데이터 채움
-    # (db.py에서 테이블 맨날 지우고 다시 만드니까, 항상 최신 더미 데이터로 채워지는거임)
-    fetch_and_store_tour_data()
-    logger.info("[App] 애플리케이션 시작 준비가 완료되었습니다.")
+#     # 2. 시작할때 바로 데이터 채움
+#     # (db.py에서 테이블 맨날 지우고 다시 만드니까, 항상 최신 더미 데이터로 채워지는거임)
+#     # fetch_and_store_tour_data()
+#     logger.info("[App] 애플리케이션 시작 준비가 완료되었습니다.")
 
 
 @app.post("/recommend", response_model=RecommendationResponse)
@@ -67,25 +67,25 @@ async def recommend(user_request: UserRequest, db: Session = Depends(get_db)):
     logger.info(f"[App] /recommend 엔드포인트 호출됨. 요청: {user_request.model_dump_json()}")
 
     # 1. DB에서 조건 맞는 관광 정보 조회하는거
-    tourist_info_data = get_tourist_info_from_db(
-        db=db,
-        region=user_request.region,
-        interests=user_request.interests,
-        start_date=user_request.start_date,
-        end_date=user_request.end_date
-    )
+    # tourist_info_data = get_tourist_info_from_db(
+    #     db=db,
+    #     region=user_request.region,
+    #     interests=user_request.interests,
+    #     start_date=user_request.start_date,
+    #     end_date=user_request.end_date
+    # )
 
     # 조회된 정보 없으면 404 에러 반환하는거
-    if not tourist_info_data:
-        logger.warning("[App] 사용자의 요청에 맞는 관광 정보를 DB에서 찾을 수 없습니다.")
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="요청하신 지역과 관심사에 맞는 관광 정보를 찾을 수 없습니다."
-        )
+    # if not tourist_info_data:
+    #     logger.warning("[App] 사용자의 요청에 맞는 관광 정보를 DB에서 찾을 수 없습니다.")
+    #     raise HTTPException(
+    #         status_code=status.HTTP_404_NOT_FOUND,
+    #         detail="요청하신 지역과 관심사에 맞는 관광 정보를 찾을 수 없습니다."
+    #     )
 
     # 2. LLM 불러서 AI 추천 만드는거
     try:
-        ai_response = await get_ai_recommendations(user_request.model_dump(), tourist_info_data)
+        ai_response = await get_ai_recommendations(user_request)
     except Exception as e:
         logger.error(f"[App] AI 추천 생성 중 심각한 오류 발생: {e}", exc_info=True)
         raise HTTPException(
