@@ -118,6 +118,13 @@ const YearScroller = ({ years, selectedYear, onYearChange, onScrollEnd }) => {
   );
 };
 
+function formatDate(date) {
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 export default function TravelInput({ onClose, navigate }) {
   const [step, setStep] = useState(0);
   const [stepOpacity, setStepOpacity] = useState(1);
@@ -171,100 +178,46 @@ export default function TravelInput({ onClose, navigate }) {
   };
 
   const handleSubmit = async () => {
-    // setLoading(true);
-    // const age = birthYear ? currentYear - parseInt(birthYear) : 0; // birthYear가 없으면 0으로 처리
+    setLoading(true);
+    const age = birthYear ? new Date().getFullYear() - parseInt(birthYear) : 0; // birthYear가 없으면 0으로 처리
 
-    // const requestBody = {
-    //   region: selectedRegion,
-    //   start_date: dateRange[0].startDate.toISOString().slice(0,10),
-    //   end_date: dateRange[0].endDate.toISOString().slice(0,10),
-    //   age: age,
-    //   gender: gender === "선택 안함" ? "" : gender, // 선택 안함이면 빈 문자열로
-    //   interests: [selectedInterest], // 단일 선택이므로 배열에 담아서 보냄
-    // };
-
-    // console.log("백엔드로 보낼 데이터:", requestBody);
-
-    // try {
-    //   const response = await fetch("http://localhost:8000/recommend", {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify(requestBody),
-    //   });
-
-    //   if (!response.ok) {
-    //     const errorData = await response.json();
-    //     throw new Error(errorData.detail || "백엔드 응답 오류");
-    //   }
-
-    //   const result = await response.json();
-    //   console.log("백엔드 응답:", result);
-
-    //   // 결과 페이지로 이동하며 데이터 전달
-    //   navigate("/result", { state: { recommendation: result } });
-    //   onClose(); // 모달 닫기
-    // } catch (error) {
-    //   console.error("API 호출 중 오류 발생:", error);
-    //   alert(`여행 추천을 받는 중 오류가 발생했습니다: ${error.message}`);
-    // } finally {
-    //   setLoading(false);
-    // }
-
-    const recommendation = {
-      daily_recommendations: [
-        {
-          date: "2025-11-01",
-          recommendations: [
-            {
-              name: "경복궁",
-              description: "조선 왕조의 법궁으로, 아름다운 건축미와 역사적 의미를 느낄 수 있습니다.",
-              activity: "한복 체험 후 궁궐 산책",
-              address: "서울특별시 종로구 사직로 161",
-              latitude: 37.579761,
-              longitude: 126.977036,
-              image_url: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Gyeongbokgung_Palace_at_night.jpg/1280px-Gyeongbokgung_Palace_at_night.jpg",
-            },
-            {
-              name: "북촌 한옥마을",
-              description: "전통 한옥들이 밀집해 있는 곳으로, 고즈넉한 분위기를 자랑합니다.",
-              activity: "골목길을 따라 산책하며 전통 건축물 감상",
-              address: "서울특별시 종로구 계동길 37",
-              latitude: 37.582600,
-              longitude: 126.983200,
-              image_url: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Bukchon_Hanok_Village_in_Seoul.jpg/1280px-Bukchon_Hanok_Village_in_Seoul.jpg",
-            },
-          ],
-        },
-        {
-          date: "2025-11-02",
-          recommendations: [
-            {
-              name: "남산 서울타워",
-              description: "서울의 전경을 한눈에 볼 수 있는 대표적인 랜드마크입니다.",
-              activity: "케이블카 타고 올라가서 야경 감상",
-              address: "서울특별시 용산구 남산공원길 105",
-              latitude: 37.551160,
-              longitude: 126.988000,
-              image_url: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/N_Seoul_Tower_at_night.jpg/1280px-N_Seoul_Tower_at_night.jpg",
-            },
-            {
-              name: "명동",
-              description: "쇼핑과 길거리 음식을 즐길 수 있는 활기찬 거리입니다.",
-              activity: "다양한 길거리 음식 맛보고 쇼핑하기",
-              address: "서울특별시 중구 명동길",
-              latitude: 37.563500,
-              longitude: 126.982000,
-              image_url: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Myeongdong_street_at_night.jpg/1280px-Myeongdong_street_at_night.jpg",
-            },
-          ],
-        },
-      ],
+    const requestBody = {
+      region: selectedRegion,
+      start_date: formatDate(dateRange[0].startDate),
+      end_date: formatDate(dateRange[0].endDate),
+      age: age,
+      gender: gender === "선택 안함" ? "" : gender, // 선택 안함이면 빈 문자열로
+      interests: [selectedInterest], // 단일 선택이므로 배열에 담아서 보냄
     };
 
-    navigate("/result", { state: { recommendation: recommendation } });
-    onClose();
+    console.log("백엔드로 보낼 데이터:", requestBody);
+
+    try {
+      const response = await fetch("http://localhost:8000/recommend", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "백엔드 응답 오류");
+      }
+
+      const result = await response.json();
+      console.log("백엔드 응답:", result);
+
+      // 결과 페이지로 이동하며 데이터 전달
+      navigate("/result", { state: { recommendation: result } });
+      onClose(); // 모달 닫기
+    } catch (error) {
+      console.error("API 호출 중 오류 발생:", error);
+      alert(`여행 추천을 받는 중 오류가 발생했습니다: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const renderStep = () => {

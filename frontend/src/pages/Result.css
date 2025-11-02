@@ -1,83 +1,39 @@
-
-
 .result-container {
-  display: flex;
-  height: 100vh;
+  /* max-width: 1200px; Remove max-width for now to allow container to expand */
+  height: 100vh; /* Full viewport height */
+  margin: auto; /* Center the container */
   background-color: var(--color-bg-slider); /* Dark background from Home */
   color: var(--color-white); /* Default text color for contrast */
-}
-
-.cards-container {
-  flex: 1;
-  overflow-y: auto;
-  padding: 60px;
-  background-color: rgba(255, 255, 255, 0.15); /* Translucent white background */
-  backdrop-filter: blur(10px); /* Glassmorphism blur effect */
-  border-right: 1px solid rgba(255, 255, 255, 0.3); /* Light translucent border */
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); /* Glassmorphism shadow */
+  border-radius: 15px; /* Rounded corners for the main container */
+  overflow: hidden; /* Hide overflow if content exceeds fixed height */
+  flex-wrap: nowrap !important; /* Force no wrapping */
 }
 
 .map-container {
-  flex: 1;
-  height: 100vh;
+  box-sizing: border-box; /* Include padding in width/height calculation */
+  min-width: 0; /* Allow flex item to shrink */
+  height: 100%; /* Ensure it takes full height of parent */
 }
 
-.cards-container h1 {
-  font-size: 2.8rem;
-  margin-bottom: 40px;
+/* CalendarView now directly receives col-md-6, so its internal root div needs height */
+.calendar-view-container.col-md-6 {
+  box-sizing: border-box; /* Include padding in width/height calculation */
+  display: flex; /* Keep as flex to arrange internal content */
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 20px; /* Adjusted padding */
+  background-color: rgba(255, 255, 255, 0.15); /* Translucent white background */
+  backdrop-filter: blur(10px); /* Glassmorphism blur effect */
+  border-left: 1px solid rgba(255, 255, 255, 0.3); /* Light translucent border */
+  min-width: 0; /* Allow flex item to shrink */
+  height: 100%; /* Ensure it takes full height of parent */
+}
+
+.calendar-view-container h1 {
+  font-size: 2rem; /* Adjusted font size */
+  margin-bottom: 20px; /* Adjusted margin */
   color: var(--color-white); /* White heading for contrast */
   text-align: center;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Subtle text shadow */
-}
-
-.travel-card {
-  background-color: rgba(255, 255, 255, 0.1); /* Lighter translucent background */
-  border: 1px solid rgba(255, 255, 255, 0.2); /* Lighter translucent border */
-  border-radius: 10px;
-  margin-bottom: 25px;
-  padding: 25px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Refined shadow */
-  max-height: 250px;
-  transition: max-height 0.5s ease-in-out, box-shadow 0.3s ease, border-color 0.3s ease;
-}
-
-.travel-card:hover {
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-  border-color: var(--color-primary-blue); /* Highlight on hover */
-}
-
-.travel-card.expanded {
-  max-height: 700px;
-  background-color: rgba(255, 255, 255, 0.2); /* Slightly more opaque when expanded */
-}
-
-.travel-card h3 {
-  font-size: 2rem;
-  margin-bottom: 20px;
-  color: var(--color-white); /* White heading */
-}
-
-.travel-card ul {
-  list-style: none;
-  padding: 0;
-}
-
-.travel-card li {
-  font-size: 1.4rem;
-  margin-bottom: 18px;
-  cursor: pointer;
-  position: relative;
-  transition: transform 0.2s ease-in-out, color 0.2s ease-in-out;
-  color: var(--color-white); /* White list item text */
-}
-
-.travel-card li:hover {
-  transform: translateX(5px);
-  color: var(--color-primary-blue); /* Highlight on hover */
-}
-
-.travel-card.expanded .location-modal {
-  opacity: 1;
-  transform: translateY(0);
-  max-height: 500px; /* A value large enough to contain the content */
 }

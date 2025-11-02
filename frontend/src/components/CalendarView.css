@@ -1,0 +1,140 @@
+.calendar-view-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5px; /* Reduced padding */
+  color: var(--color-white);
+  width: 100%;
+  height: 100%; /* Ensure it takes full height of its parent flex item */
+  box-sizing: border-box; /* Include padding in height calculation */
+}
+
+.calendar-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  /* max-width removed */
+  margin-bottom: 5px; /* Reduced margin */
+  flex-shrink: 0; /* Prevent shrinking */
+}
+
+.calendar-navigation button {
+  background: none;
+  border: none;
+  color: var(--color-white);
+  font-size: 1.2rem; /* Reduced font size */
+  cursor: pointer;
+  padding: 2px 5px;
+  transition: color 0.2s ease;
+}
+
+.calendar-navigation button:hover {
+  color: var(--color-primary-blue);
+}
+
+.calendar-navigation h2 {
+  font-size: 1.2rem; /* Reduced font size */
+  margin: 0;
+}
+
+.calendar-grid {
+  width: 100%;
+  /* max-width removed */
+  margin: 0 auto; /* Center the grid */
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px; /* Adjusted border-radius */
+  overflow: hidden;
+  backdrop-filter: blur(5px);
+  background-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); /* Added shadow for depth */
+  flex-grow: 1; /* Allow calendar grid to grow and take available space */
+  display: flex; /* Make it a flex container */
+  flex-direction: column; /* Arrange children vertically */
+}
+
+.calendar-grid .days-of-week,
+.calendar-grid .days-of-month {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background-color: transparent;
+}
+
+.calendar-grid .days-of-month {
+  flex-grow: 1;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.calendar-grid .days-of-month::-webkit-scrollbar {
+  display: none;
+}
+
+.days-of-week div {
+  text-align: center;
+  padding: 3px 0; /* Removed horizontal padding */
+  font-weight: bold;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  font-size: 0.8rem; /* Reduced font size */
+}
+
+.calendar-day {
+  min-height: 40px; /* Reduced min-height */
+  padding: 3px 0; /* Removed horizontal padding */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.calendar-day:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-3px);
+}
+
+.calendar-day.empty {
+  background-color: rgba(255, 255, 255, 0.05);
+  cursor: default;
+  transform: none;
+}
+
+.calendar-day .date {
+  font-size: 0.9rem; /* Reduced font size */
+  font-weight: bold;
+  margin-bottom: 2px;
+}
+
+.calendar-day.has-recommendations {
+  background-color: rgba(144, 238, 144, 0.25);
+}
+
+.calendar-day.selected {
+  background-color: rgba(173, 216, 230, 0.4);
+  border: 2px solid var(--color-primary-blue);
+  box-shadow: 0 0 15px rgba(var(--color-primary-blue-rgb), 0.7);
+}
+
+.recommendation-dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px; /* Reduced gap */
+  margin-top: 1px;
+}
+
+.recommendation-dots .dot {
+  width: 4px; /* Reduced dot size */
+  height: 4px; /* Reduced dot size */
+  background-color: var(--color-primary-blue);
+  border-radius: 50%;
+}
+
+.recommendation-dots .dot-more {
+  font-size: 0.6rem; /* Reduced font size */
+  line-height: 4px;
+  color: var(--color-white);
+}
